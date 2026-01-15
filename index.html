@@ -30,6 +30,13 @@
             --font-body: 'IBM Plex Sans Hebrew', sans-serif;
         }
 
+        /* RESET & BASE */
+        html, body {
+            height: 100%;
+            width: 100%;
+            overflow: hidden; /* Evita scroll en el body */
+        }
+
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: var(--font-body); -webkit-tap-highlight-color: transparent; }
         
         body {
@@ -38,28 +45,67 @@
             display: flex;
             justify-content: center;
             align-items: center;
-            min-height: 100vh;
             padding: 20px;
-            overscroll-behavior-y: none;
         }
 
+        /* --- CONTENEDOR PRINCIPAL --- */
         .app-container {
             background: var(--card-bg);
             width: 100%;
             max-width: 420px;
+            height: 85vh; /* Altura base para escritorio */
+            max-height: 800px;
             border-radius: var(--radius);
-            padding: 30px 30px 15px 30px; /* Padding bottom reducido para el footer */
+            padding: 30px 30px 15px 30px;
             box-shadow: var(--shadow);
             text-align: center;
             position: relative;
             overflow: hidden;
             display: flex;
             flex-direction: column;
-            height: 85vh;
-            max-height: 800px;
         }
 
-        /* --- PANTALLAS --- */
+        /* --- 📱 AJUSTES MÓVIL (Full Screen sin scroll) --- */
+        @media (max-width: 480px) {
+            body {
+                padding: 0; /* Sin padding externo */
+                background-color: var(--card-bg); /* Fondo blanco en móvil para evitar bordes raros */
+            }
+            .app-container {
+                width: 100%;
+                height: 100dvh; /* Altura dinámica del viewport */
+                max-height: none; /* Sin límite */
+                border-radius: 0; /* Sin bordes redondeados */
+                box-shadow: none; /* Sin sombra */
+            }
+        }
+
+        /* --- SPLASH SCREEN (INTRO) --- */
+        #intro-screen {
+            position: fixed; /* Fijo sobre TODO */
+            top: 0; left: 0; width: 100%; height: 100%;
+            background-color: var(--navy);
+            z-index: 9999; /* Siempre arriba */
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            transition: opacity 0.8s ease; /* Desvanecimiento al salir */
+        }
+        
+        .intro-content {
+            text-align: center;
+            opacity: 0; /* Empieza invisible */
+            animation: gentleAppear 3s ease-in-out forwards; /* Animación lenta */
+        }
+
+        @keyframes gentleAppear {
+            0% { opacity: 0; transform: translateY(10px); }
+            100% { opacity: 1; transform: translateY(0); }
+        }
+
+        /* --- PANTALLAS INTERNAS --- */
         .screen {
             display: none;
             flex: 1;
@@ -74,15 +120,6 @@
             animation: fadeIn 0.4s ease-out;
         }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-
-        /* --- SPLASH SCREEN --- */
-        #intro-screen {
-            background-color: var(--navy);
-            position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 100; cursor: pointer;
-        }
-        .intro-content h1 {
-            color: var(--cream); font-family: var(--font-title); font-size: 40px; font-weight: 700; letter-spacing: 1px; margin-bottom: 5px;
-        }
 
         /* --- UI ELEMENTS --- */
         h1 { font-family: var(--font-title); font-size: 32px; font-weight: 800; margin-bottom: 12px; color: var(--navy); line-height: 1.1; letter-spacing: -0.5px; }
@@ -154,19 +191,19 @@
 </head>
 <body>
 
+    <div id="intro-screen" onclick="enterApp()">
+        <div class="intro-content">
+            <h1 style="color: var(--cream); font-size: 40px; margin-bottom: 10px;">DOCENTES BROWN</h1>
+            <div style="width: 50px; height: 3px; background: var(--salmon); margin: 20px auto;"></div>
+            <p style="color: var(--cream); font-size: 14px; text-transform: uppercase; letter-spacing: 3px; font-weight: 600; opacity: 0.9;">Trivia del Sistema Educativo</p>
+        </div>
+    </div>
+
     <div class="app-container">
         
-        <div id="intro-screen" class="screen active" onclick="enterApp()">
-            <div class="intro-content">
-                <h1 style="color: var(--cream);">DOCENTES BROWN</h1>
-                <div style="width: 40px; height: 3px; background: var(--salmon); margin: 20px auto;"></div>
-                <p style="color: var(--cream); font-size: 14px; text-transform: uppercase; letter-spacing: 3px; font-weight: 600; opacity: 0.9;">Trivia del Sistema Educativo</p>
-            </div>
-        </div>
-
         <div class="timer-container"><div id="timer-bar" class="timer-bar"></div></div>
 
-        <div id="start-screen" class="screen">
+        <div id="start-screen" class="screen active">
             <span class="brand-badge">DOCENTES BROWN</span>
             <h1>Desafío Normativo PBA</h1>
             <p>Demostrá tu dominio del sistema educativo bonaerense y liderá el ranking provincial.</p>
@@ -255,15 +292,25 @@
 
         // --- SPLASH & NAV ---
         window.onload = function() {
-            setTimeout(() => { if(document.getElementById('intro-screen').classList.contains('active')) enterApp(); }, 3000);
+            // Se asegura de que el splash esté visible al inicio
+            document.getElementById('intro-screen').style.display = 'flex';
+            
+            // Auto avanzar
+            setTimeout(() => { 
+                const intro = document.getElementById('intro-screen');
+                if(intro && intro.style.display !== 'none') enterApp(); 
+            }, 3500);
         };
+
         function enterApp() {
-            document.getElementById('intro-screen').style.opacity = '0';
+            const intro = document.getElementById('intro-screen');
+            intro.style.opacity = '0';
             setTimeout(() => {
-                document.getElementById('intro-screen').classList.remove('active');
-                document.getElementById('start-screen').classList.add('active');
-            }, 500);
+                intro.style.display = 'none';
+                // No necesitamos añadir 'active' a start-screen porque ya lo tiene en el HTML
+            }, 800);
         }
+
         function showScreen(id) {
             screens.forEach(s => s.classList.remove('active'));
             document.getElementById(id).classList.add('active');
@@ -289,39 +336,28 @@
             fetch(`${GOOGLE_SCRIPT_URL}?action=stats`)
             .then(res => res.json())
             .then(data => {
-                // data es un array de strings ["P1:✅ | P2:❌", ...]
                 if(!data || data.length === 0) {
                     container.innerHTML = "<p>No hay datos suficientes aún.</p>";
                     return;
                 }
-
-                // Inicializar contadores
                 let stats = Array(questions.length).fill(0).map(() => ({ correct: 0, total: 0 }));
-
                 data.forEach(entry => {
-                    // entry ejemplo: "P1:✅ | P2:❌ | ..."
                     const parts = entry.split(" | ");
                     parts.forEach(part => {
-                        // part ejemplo: "P1:✅"
-                        const [qLabel, result] = part.split(":"); // qLabel="P1", result="✅"
+                        const [qLabel, result] = part.split(":"); 
                         const qIndex = parseInt(qLabel.replace("P", "")) - 1;
-                        
                         if(qIndex >= 0 && qIndex < stats.length) {
                             stats[qIndex].total++;
                             if(result === "✅") stats[qIndex].correct++;
                         }
                     });
                 });
-
-                // Renderizar
                 let html = "";
                 stats.forEach((stat, index) => {
                     const percent = stat.total > 0 ? Math.round((stat.correct / stat.total) * 100) : 0;
-                    // Color de barra según rendimiento
                     let barColor = "var(--navy)";
                     if(percent < 50) barColor = "var(--error)";
                     else if(percent > 80) barColor = "var(--success)";
-
                     html += `
                         <div class="stats-item">
                             <div class="stats-label">

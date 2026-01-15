@@ -3,16 +3,17 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Quiz Sistema Educativo</title>
+    <title>Quiz Docente - Contrarreloj</title>
     <style>
         :root {
-            --primary: #7F5AF0; /* Violeta moderno */
-            --success: #2CB67D; /* Verde éxito */
-            --error: #EF4565;   /* Rojo error */
-            --bg: #F9FAFB;
+            --primary: #4F46E5; /* Indigo */
+            --secondary: #818CF8;
+            --success: #10B981;
+            --error: #EF4444;
+            --warning: #F59E0B;
+            --bg: #F3F4F6;
             --card: #FFFFFF;
-            --text: #2D3436;
-            --gray: #A0AEC0;
+            --text: #1F2937;
         }
 
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
@@ -33,69 +34,84 @@
             max-width: 500px;
             border-radius: 24px;
             padding: 30px;
-            box-shadow: 0 10px 40px rgba(0,0,0,0.08);
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
             text-align: center;
             position: relative;
             overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            min-height: 500px;
         }
 
         /* Pantallas */
-        .screen { display: none; animation: fadeIn 0.4s ease; }
-        .screen.active { display: block; }
+        .screen { display: none; flex: 1; flex-direction: column; justify-content: center; animation: fadeIn 0.4s ease; }
+        .screen.active { display: flex; }
 
         @keyframes fadeIn {
             from { opacity: 0; transform: translateY(10px); }
             to { opacity: 1; transform: translateY(0); }
         }
 
-        /* Elementos Generales */
+        /* Títulos y textos */
         h1 { font-size: 1.8rem; margin-bottom: 10px; color: var(--primary); }
-        h2 { font-size: 1.4rem; margin-bottom: 20px; font-weight: 600; line-height: 1.4; }
-        p { color: #666; margin-bottom: 30px; line-height: 1.6; }
+        h2 { font-size: 1.3rem; margin-bottom: 20px; font-weight: 600; line-height: 1.4; color: #374151; }
+        p { color: #6B7280; margin-bottom: 30px; line-height: 1.6; }
 
         .btn {
             background: var(--primary);
             color: white;
             border: none;
             padding: 16px 32px;
-            font-size: 1rem;
-            border-radius: 16px;
+            font-size: 1.1rem;
+            border-radius: 12px;
             cursor: pointer;
             width: 100%;
             font-weight: 600;
-            transition: transform 0.1s, opacity 0.2s;
-            box-shadow: 0 4px 12px rgba(127, 90, 240, 0.3);
+            transition: all 0.2s;
+            box-shadow: 0 4px 6px -1px rgba(79, 70, 229, 0.2);
+            margin-top: auto;
         }
         .btn:active { transform: scale(0.98); }
-        .btn:hover { opacity: 0.9; }
+        .btn:hover { background-color: #4338CA; }
 
-        /* Quiz Styles */
-        .progress-container {
+        /* Barra de Tiempo (Countdown) */
+        .timer-container {
             width: 100%;
-            background: #EDF2F7;
-            height: 8px;
-            border-radius: 10px;
-            margin-bottom: 25px;
-            overflow: hidden;
+            height: 6px;
+            background: #E5E7EB;
+            position: absolute;
+            top: 0;
+            left: 0;
         }
-        .progress-bar {
+        .timer-bar {
             height: 100%;
-            background: var(--primary);
-            width: 0%;
-            transition: width 0.3s ease;
+            background: var(--warning);
+            width: 100%;
+            transition: width 1s linear, background-color 0.5s;
+        }
+
+        /* Progreso de preguntas */
+        .header-info {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 15px;
+            font-size: 0.9rem;
+            color: #6B7280;
+            margin-top: 15px;
         }
 
         .options-grid {
             display: flex;
             flex-direction: column;
             gap: 12px;
+            margin-bottom: 20px;
         }
 
         .option-btn {
             background: white;
-            border: 2px solid #E2E8F0;
-            padding: 15px 20px;
-            border-radius: 16px;
+            border: 2px solid #E5E7EB;
+            padding: 16px;
+            border-radius: 12px;
             text-align: left;
             font-size: 1rem;
             color: var(--text);
@@ -105,8 +121,8 @@
         }
 
         .option-btn:hover:not(:disabled) {
-            border-color: var(--primary);
-            background: #F8F5FF;
+            border-color: var(--secondary);
+            background: #EEF2FF;
         }
 
         .option-btn.correct {
@@ -121,55 +137,101 @@
             color: white;
         }
 
-        .option-btn:disabled { cursor: default; }
+        .option-btn:disabled { cursor: default; opacity: 0.9; }
 
-        /* Resultado */
-        .score-circle {
-            width: 120px;
-            height: 120px;
-            border-radius: 50%;
-            border: 6px solid var(--primary);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            font-size: 2.5rem;
+        /* Tabla de Resultados */
+        .stats-table {
+            width: 100%;
+            margin-bottom: 25px;
+            border-collapse: collapse;
+            background: #F9FAFB;
+            border-radius: 12px;
+            overflow: hidden;
+        }
+        .stats-table td {
+            padding: 15px;
+            border-bottom: 1px solid #E5E7EB;
+            text-align: left;
+        }
+        .stats-table td:last-child {
+            text-align: right;
             font-weight: bold;
             color: var(--primary);
-            margin: 0 auto 20px;
         }
+        .stats-table tr:last-child td {
+            border-bottom: none;
+            background: #EEF2FF;
+            font-size: 1.2rem;
+            color: var(--primary);
+        }
+        
+        .score-display {
+            font-size: 3rem;
+            font-weight: 800;
+            color: var(--primary);
+            margin: 10px 0;
+        }
+
     </style>
 </head>
 <body>
 
     <div class="app-container">
+        <div class="timer-container">
+            <div id="timer-bar" class="timer-bar"></div>
+        </div>
+
         <div id="start-screen" class="screen active">
             <h1>Desafío Docente</h1>
-            <p>Pon a prueba tus conocimientos sobre el sistema educativo, leyes y normativa vigente.</p>
-            <div style="font-size: 4rem; margin-bottom: 20px;">🎓</div>
-            <button class="btn" onclick="startQuiz()">Comenzar Quiz</button>
+            <p>10 preguntas, 30 segundos cada una.<br>
+            Acierta rápido para ganar más puntos.<br>
+            <strong>Correcta: 10 pts | Segundos ahorrados: +1 pto</strong></p>
+            <div style="font-size: 5rem; margin-bottom: 20px;">⏱️</div>
+            <button class="btn" onclick="startQuiz()">Comenzar Desafío</button>
         </div>
 
         <div id="quiz-screen" class="screen">
-            <div class="progress-container">
-                <div class="progress-bar" id="progress-bar"></div>
+            <div class="header-info">
+                <span id="question-count">Pregunta 1/10</span>
+                <span id="timer-text">30s</span>
             </div>
-            <h2 id="question-text">Pregunta aquí...</h2>
+            
+            <h2 id="question-text">Pregunta...</h2>
+            
             <div class="options-grid" id="options-container">
                 </div>
         </div>
 
         <div id="result-screen" class="screen">
-            <h1>¡Completado!</h1>
-            <div class="score-circle" id="final-score">0/10</div>
-            <p id="result-message">Mensaje final...</p>
-            <button class="btn" onclick="restartQuiz()">Jugar de nuevo</button>
+            <h1>Resumen Final</h1>
+            
+            <div class="score-display" id="final-score-big">0</div>
+            <p style="margin-bottom: 15px;">Puntos Totales</p>
+
+            <table class="stats-table">
+                <tr>
+                    <td>✅ Aciertos</td>
+                    <td id="res-correct">0/10</td>
+                </tr>
+                <tr>
+                    <td>⏱️ Tiempo Total</td>
+                    <td id="res-time">0s</td>
+                </tr>
+                <tr>
+                    <td>🏆 Puntaje Final</td>
+                    <td id="res-score">0</td>
+                </tr>
+            </table>
+
+            <p id="feedback-msg">Mensaje...</p>
+            <button class="btn" onclick="restartQuiz()">Jugar Otra Vez</button>
         </div>
     </div>
 
     <script>
-        // CONFIGURACIÓN: Aquí puedes editar tus preguntas
+        // --- CONFIGURACIÓN DE PREGUNTAS ---
         const questions = [
-            {
+             {
                 question: "¿Cuál es la Ley de Educación Nacional vigente en Argentina?",
                 answers: [
                     { text: "Ley 1420", correct: false },
@@ -261,65 +323,147 @@
             }
         ];
 
-        // LOGICA DE LA APP
+        // --- VARIABLES DE ESTADO ---
         let currentQuestionIndex = 0;
         let score = 0;
+        let correctAnswersCount = 0;
+        let totalTimeTaken = 0; // Segundos acumulados que tardó en responder
+        
+        // Timer variables
+        let timeLeft = 30;
+        let timerInterval;
+        const TIME_LIMIT = 30;
 
+        // --- DOM ELEMENTS ---
         const startScreen = document.getElementById('start-screen');
         const quizScreen = document.getElementById('quiz-screen');
         const resultScreen = document.getElementById('result-screen');
+        
         const questionText = document.getElementById('question-text');
         const optionsContainer = document.getElementById('options-container');
-        const progressBar = document.getElementById('progress-bar');
-        const finalScore = document.getElementById('final-score');
-        const resultMessage = document.getElementById('result-message');
+        const questionCountLabel = document.getElementById('question-count');
+        
+        const timerBar = document.getElementById('timer-bar');
+        const timerText = document.getElementById('timer-text');
+
+        // Resultados DOM
+        const resCorrect = document.getElementById('res-correct');
+        const resTime = document.getElementById('res-time');
+        const resScore = document.getElementById('res-score');
+        const finalScoreBig = document.getElementById('final-score-big');
+        const feedbackMsg = document.getElementById('feedback-msg');
+
+        // --- FUNCIONES ---
 
         function startQuiz() {
             startScreen.classList.remove('active');
             resultScreen.classList.remove('active');
             quizScreen.classList.add('active');
+            
+            // Reiniciar valores
             currentQuestionIndex = 0;
             score = 0;
+            correctAnswersCount = 0;
+            totalTimeTaken = 0;
+            
             loadQuestion();
         }
 
         function loadQuestion() {
             resetState();
             const currentQuestion = questions[currentQuestionIndex];
+            
             questionText.innerText = currentQuestion.question;
-
-            // Actualizar barra de progreso
-            const progress = ((currentQuestionIndex) / questions.length) * 100;
-            progressBar.style.width = `${progress}%`;
+            questionCountLabel.innerText = `Pregunta ${currentQuestionIndex + 1}/${questions.length}`;
 
             currentQuestion.answers.forEach(answer => {
                 const button = document.createElement('button');
                 button.innerText = answer.text;
                 button.classList.add('option-btn');
-                if (answer.correct) {
-                    button.dataset.correct = answer.correct;
-                }
+                button.dataset.correct = answer.correct;
                 button.addEventListener('click', selectAnswer);
                 optionsContainer.appendChild(button);
             });
+
+            startTimer();
+        }
+
+        function startTimer() {
+            timeLeft = TIME_LIMIT;
+            updateTimerVisuals();
+            
+            clearInterval(timerInterval); // Seguridad
+            timerInterval = setInterval(() => {
+                timeLeft--;
+                updateTimerVisuals();
+
+                if (timeLeft <= 0) {
+                    clearInterval(timerInterval);
+                    handleTimeUp();
+                }
+            }, 1000);
+        }
+
+        function updateTimerVisuals() {
+            const percentage = (timeLeft / TIME_LIMIT) * 100;
+            timerBar.style.width = `${percentage}%`;
+            timerText.innerText = `${timeLeft}s`;
+            
+            // Cambiar color de barra según urgencia
+            if(percentage < 30) {
+                timerBar.style.background = "#EF4444"; // Rojo
+            } else if (percentage < 60) {
+                timerBar.style.background = "#F59E0B"; // Naranja
+            } else {
+                timerBar.style.background = "#F59E0B"; // Amarillo/Original warning
+            }
         }
 
         function resetState() {
+            clearInterval(timerInterval);
+            timerBar.style.width = '100%';
+            timerBar.style.background = '#F59E0B';
             while (optionsContainer.firstChild) {
                 optionsContainer.removeChild(optionsContainer.firstChild);
             }
         }
 
+        function handleTimeUp() {
+            // Tiempo agotado: cuenta como error, 0 puntos.
+            // Sumamos 30 segundos al tiempo total
+            totalTimeTaken += TIME_LIMIT;
+            
+            // Deshabilitar y mostrar respuestas
+            Array.from(optionsContainer.children).forEach(button => {
+                button.disabled = true;
+                if (button.dataset.correct === "true") {
+                    button.classList.add('correct');
+                }
+            });
+            
+            setTimeout(() => {
+                nextQuestion();
+            }, 2000);
+        }
+
         function selectAnswer(e) {
+            clearInterval(timerInterval);
             const selectedBtn = e.target;
             const isCorrect = selectedBtn.dataset.correct === "true";
+            
+            // Calcular tiempo usado en esta pregunta
+            const timeUsed = TIME_LIMIT - timeLeft;
+            totalTimeTaken += timeUsed;
 
             if (isCorrect) {
                 selectedBtn.classList.add('correct');
-                score++;
+                correctAnswersCount++;
+                // Lógica de puntaje: 10 base + segundos restantes
+                const points = 10 + timeLeft;
+                score += points;
             } else {
                 selectedBtn.classList.add('wrong');
-                // Mostrar cuál era la correcta
+                // Mostrar la correcta
                 Array.from(optionsContainer.children).forEach(button => {
                     if (button.dataset.correct === "true") {
                         button.classList.add('correct');
@@ -327,33 +471,48 @@
                 });
             }
 
-            // Bloquear todos los botones
+            // Bloquear todos
             Array.from(optionsContainer.children).forEach(button => {
                 button.disabled = true;
             });
 
-            // Esperar un poco y pasar a la siguiente
             setTimeout(() => {
-                currentQuestionIndex++;
-                if (currentQuestionIndex < questions.length) {
-                    loadQuestion();
-                } else {
-                    showResult();
-                }
+                nextQuestion();
             }, 1500);
+        }
+
+        function nextQuestion() {
+            currentQuestionIndex++;
+            if (currentQuestionIndex < questions.length) {
+                loadQuestion();
+            } else {
+                showResult();
+            }
         }
 
         function showResult() {
             quizScreen.classList.remove('active');
             resultScreen.classList.add('active');
-            finalScore.innerText = `${score}/${questions.length}`;
 
-            if (score === 10) {
-                resultMessage.innerText = "¡Excelente! Eres un experto/a en el sistema educativo. 🌟";
-            } else if (score > 6) {
-                resultMessage.innerText = "¡Muy buen trabajo! Tienes conocimientos sólidos. 📚";
+            // Llenar tabla
+            resCorrect.innerText = `${correctAnswersCount} / ${questions.length}`;
+            
+            // Formatear tiempo total (ej: 65s -> 1m 5s)
+            const minutes = Math.floor(totalTimeTaken / 60);
+            const seconds = totalTimeTaken % 60;
+            resTime.innerText = minutes > 0 ? `${minutes}m ${seconds}s` : `${seconds}s`;
+            
+            resScore.innerText = score;
+            finalScoreBig.innerText = score;
+
+            // Mensaje según puntaje (Max posible aprox: 100 + 300 = 400 pts, siendo realistas unos 300)
+            // Calculo simple: 10 preguntas x (10 base + 20 seg promedio) = 300 pts max perfecto
+            if (score > 250) {
+                feedbackMsg.innerText = "¡IMPRESIONANTE! Velocidad y precisión docente. 🚀";
+            } else if (score > 150) {
+                feedbackMsg.innerText = "¡Muy buen trabajo! Gran manejo de los tiempos. 👏";
             } else {
-                resultMessage.innerText = "A seguir repasando. ¡La próxima sale mejor! 💪";
+                feedbackMsg.innerText = "Buen intento. ¡A repasar para subir ese puntaje! 📚";
             }
         }
 

@@ -1,0 +1,365 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quiz Sistema Educativo</title>
+    <style>
+        :root {
+            --primary: #7F5AF0; /* Violeta moderno */
+            --success: #2CB67D; /* Verde éxito */
+            --error: #EF4565;   /* Rojo error */
+            --bg: #F9FAFB;
+            --card: #FFFFFF;
+            --text: #2D3436;
+            --gray: #A0AEC0;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
+        
+        body {
+            background-color: var(--bg);
+            color: var(--text);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .app-container {
+            background: var(--card);
+            width: 100%;
+            max-width: 500px;
+            border-radius: 24px;
+            padding: 30px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.08);
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* Pantallas */
+        .screen { display: none; animation: fadeIn 0.4s ease; }
+        .screen.active { display: block; }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Elementos Generales */
+        h1 { font-size: 1.8rem; margin-bottom: 10px; color: var(--primary); }
+        h2 { font-size: 1.4rem; margin-bottom: 20px; font-weight: 600; line-height: 1.4; }
+        p { color: #666; margin-bottom: 30px; line-height: 1.6; }
+
+        .btn {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 16px 32px;
+            font-size: 1rem;
+            border-radius: 16px;
+            cursor: pointer;
+            width: 100%;
+            font-weight: 600;
+            transition: transform 0.1s, opacity 0.2s;
+            box-shadow: 0 4px 12px rgba(127, 90, 240, 0.3);
+        }
+        .btn:active { transform: scale(0.98); }
+        .btn:hover { opacity: 0.9; }
+
+        /* Quiz Styles */
+        .progress-container {
+            width: 100%;
+            background: #EDF2F7;
+            height: 8px;
+            border-radius: 10px;
+            margin-bottom: 25px;
+            overflow: hidden;
+        }
+        .progress-bar {
+            height: 100%;
+            background: var(--primary);
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+
+        .options-grid {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .option-btn {
+            background: white;
+            border: 2px solid #E2E8F0;
+            padding: 15px 20px;
+            border-radius: 16px;
+            text-align: left;
+            font-size: 1rem;
+            color: var(--text);
+            cursor: pointer;
+            transition: all 0.2s;
+            position: relative;
+        }
+
+        .option-btn:hover:not(:disabled) {
+            border-color: var(--primary);
+            background: #F8F5FF;
+        }
+
+        .option-btn.correct {
+            background: var(--success);
+            border-color: var(--success);
+            color: white;
+        }
+
+        .option-btn.wrong {
+            background: var(--error);
+            border-color: var(--error);
+            color: white;
+        }
+
+        .option-btn:disabled { cursor: default; }
+
+        /* Resultado */
+        .score-circle {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            border: 6px solid var(--primary);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 2.5rem;
+            font-weight: bold;
+            color: var(--primary);
+            margin: 0 auto 20px;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="app-container">
+        <div id="start-screen" class="screen active">
+            <h1>Desafío Docente</h1>
+            <p>Pon a prueba tus conocimientos sobre el sistema educativo, leyes y normativa vigente.</p>
+            <div style="font-size: 4rem; margin-bottom: 20px;">🎓</div>
+            <button class="btn" onclick="startQuiz()">Comenzar Quiz</button>
+        </div>
+
+        <div id="quiz-screen" class="screen">
+            <div class="progress-container">
+                <div class="progress-bar" id="progress-bar"></div>
+            </div>
+            <h2 id="question-text">Pregunta aquí...</h2>
+            <div class="options-grid" id="options-container">
+                </div>
+        </div>
+
+        <div id="result-screen" class="screen">
+            <h1>¡Completado!</h1>
+            <div class="score-circle" id="final-score">0/10</div>
+            <p id="result-message">Mensaje final...</p>
+            <button class="btn" onclick="restartQuiz()">Jugar de nuevo</button>
+        </div>
+    </div>
+
+    <script>
+        // CONFIGURACIÓN: Aquí puedes editar tus preguntas
+        const questions = [
+            {
+                question: "¿Cuál es la Ley de Educación Nacional vigente en Argentina?",
+                answers: [
+                    { text: "Ley 1420", correct: false },
+                    { text: "Ley 26.206", correct: true },
+                    { text: "Ley Federal de Educación", correct: false },
+                    { text: "Ley de Financiamiento", correct: false }
+                ]
+            },
+            {
+                question: "¿Qué establece la Ley 26.150?",
+                answers: [
+                    { text: "El estatuto del docente", correct: false },
+                    { text: "La jornada extendida", correct: false },
+                    { text: "La Educación Sexual Integral (ESI)", correct: true },
+                    { text: "El voto a los 16 años", correct: false }
+                ]
+            },
+            {
+                question: "¿La educación secundaria en Argentina es obligatoria?",
+                answers: [
+                    { text: "Sí, en toda su extensión", correct: true },
+                    { text: "Solo el ciclo básico", correct: false },
+                    { text: "No, es optativa", correct: false },
+                    { text: "Solo en algunas provincias", correct: false }
+                ]
+            },
+            {
+                question: "¿Qué documento organiza la vida institucional de una escuela?",
+                answers: [
+                    { text: "El Diseño Curricular", correct: false },
+                    { text: "El PEI (Proyecto Educativo Institucional)", correct: true },
+                    { text: "El cuaderno de comunicados", correct: false },
+                    { text: "El censo escolar", correct: false }
+                ]
+            },
+            {
+                question: "¿Quiénes son considerados garantes del derecho a la educación?",
+                answers: [
+                    { text: "Solo los directivos", correct: false },
+                    { text: "Las familias exclusivamente", correct: false },
+                    { text: "El Estado y los docentes", correct: true },
+                    { text: "Los cooperadores escolares", correct: false }
+                ]
+            },
+            {
+                question: "¿Qué significan las siglas AIC?",
+                answers: [
+                    { text: "Asociación de Institutos Centrales", correct: false },
+                    { text: "Acuerdos Institucionales de Convivencia", correct: true },
+                    { text: "Área de Integración Común", correct: false },
+                    { text: "Acuerdo Integral Curricular", correct: false }
+                ]
+            },
+            {
+                question: "¿Cuál es el paradigma actual sobre la infancia y adolescencia?",
+                answers: [
+                    { text: "Situación irregular", correct: false },
+                    { text: "Sujetos de tutela", correct: false },
+                    { text: "Menores en riesgo", correct: false },
+                    { text: "Sujetos de derecho", correct: true }
+                ]
+            },
+            {
+                question: "¿Qué artículo de la Constitución Nacional garantiza el derecho a enseñar y aprender?",
+                answers: [
+                    { text: "Artículo 14", correct: true },
+                    { text: "Artículo 9", correct: false },
+                    { text: "Artículo 14 bis", correct: false },
+                    { text: "Artículo 22", correct: false }
+                ]
+            },
+            {
+                question: "La inclusión educativa implica:",
+                answers: [
+                    { text: "Que todos aprendan lo mismo al mismo tiempo", correct: false },
+                    { text: "Aceptar a todos pero evaluar diferente", correct: false },
+                    { text: "Alojar la diversidad y derribar barreras", correct: true },
+                    { text: "Crear escuelas especiales para todos", correct: false }
+                ]
+            },
+            {
+                question: "¿Cuál es la función principal de la evaluación formativa?",
+                answers: [
+                    { text: "Poner una nota final", correct: false },
+                    { text: "Clasificar a los alumnos", correct: false },
+                    { text: "Retroalimentar el proceso de aprendizaje", correct: true },
+                    { text: "Aprobar o desaprobar", correct: false }
+                ]
+            }
+        ];
+
+        // LOGICA DE LA APP
+        let currentQuestionIndex = 0;
+        let score = 0;
+
+        const startScreen = document.getElementById('start-screen');
+        const quizScreen = document.getElementById('quiz-screen');
+        const resultScreen = document.getElementById('result-screen');
+        const questionText = document.getElementById('question-text');
+        const optionsContainer = document.getElementById('options-container');
+        const progressBar = document.getElementById('progress-bar');
+        const finalScore = document.getElementById('final-score');
+        const resultMessage = document.getElementById('result-message');
+
+        function startQuiz() {
+            startScreen.classList.remove('active');
+            resultScreen.classList.remove('active');
+            quizScreen.classList.add('active');
+            currentQuestionIndex = 0;
+            score = 0;
+            loadQuestion();
+        }
+
+        function loadQuestion() {
+            resetState();
+            const currentQuestion = questions[currentQuestionIndex];
+            questionText.innerText = currentQuestion.question;
+
+            // Actualizar barra de progreso
+            const progress = ((currentQuestionIndex) / questions.length) * 100;
+            progressBar.style.width = `${progress}%`;
+
+            currentQuestion.answers.forEach(answer => {
+                const button = document.createElement('button');
+                button.innerText = answer.text;
+                button.classList.add('option-btn');
+                if (answer.correct) {
+                    button.dataset.correct = answer.correct;
+                }
+                button.addEventListener('click', selectAnswer);
+                optionsContainer.appendChild(button);
+            });
+        }
+
+        function resetState() {
+            while (optionsContainer.firstChild) {
+                optionsContainer.removeChild(optionsContainer.firstChild);
+            }
+        }
+
+        function selectAnswer(e) {
+            const selectedBtn = e.target;
+            const isCorrect = selectedBtn.dataset.correct === "true";
+
+            if (isCorrect) {
+                selectedBtn.classList.add('correct');
+                score++;
+            } else {
+                selectedBtn.classList.add('wrong');
+                // Mostrar cuál era la correcta
+                Array.from(optionsContainer.children).forEach(button => {
+                    if (button.dataset.correct === "true") {
+                        button.classList.add('correct');
+                    }
+                });
+            }
+
+            // Bloquear todos los botones
+            Array.from(optionsContainer.children).forEach(button => {
+                button.disabled = true;
+            });
+
+            // Esperar un poco y pasar a la siguiente
+            setTimeout(() => {
+                currentQuestionIndex++;
+                if (currentQuestionIndex < questions.length) {
+                    loadQuestion();
+                } else {
+                    showResult();
+                }
+            }, 1500);
+        }
+
+        function showResult() {
+            quizScreen.classList.remove('active');
+            resultScreen.classList.add('active');
+            finalScore.innerText = `${score}/${questions.length}`;
+
+            if (score === 10) {
+                resultMessage.innerText = "¡Excelente! Eres un experto/a en el sistema educativo. 🌟";
+            } else if (score > 6) {
+                resultMessage.innerText = "¡Muy buen trabajo! Tienes conocimientos sólidos. 📚";
+            } else {
+                resultMessage.innerText = "A seguir repasando. ¡La próxima sale mejor! 💪";
+            }
+        }
+
+        function restartQuiz() {
+            startQuiz();
+        }
+    </script>
+</body>
+</html>

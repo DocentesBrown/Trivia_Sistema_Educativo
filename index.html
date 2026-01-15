@@ -2,122 +2,267 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Quiz Docente - Ranking</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Trivia Docentes Brown</title>
     <style>
+        /* --- 🎨 PALETA DE COLORES DOCENTES BROWN --- */
         :root {
-            --primary: #4F46E5;
-            --secondary: #818CF8;
-            --success: #10B981;
-            --error: #EF4444;
-            --warning: #F59E0B;
-            --bg: #F3F4F6;
-            --card: #FFFFFF;
-            --text: #1F2937;
+            /* Pegá aquí tus códigos HEX exactos */
+            --brand-primary: #007AFF;   /* Azul iOS / Docentes Brown Principal */
+            --brand-secondary: #5AC8FA; /* Celeste complementario */
+            --accent: #FF9500;          /* Naranja para destacados/alertas */
+            
+            /* Colores de Sistema iOS */
+            --bg-color: #F2F2F7;        /* Gris muy suave de fondo */
+            --card-bg: #FFFFFF;         /* Blanco puro */
+            --text-main: #000000;
+            --text-secondary: #8E8E93;
+            --success: #34C759;         /* Verde Apple */
+            --error: #FF3B30;           /* Rojo Apple */
+            --radius: 20px;             /* Redondeo estilo iPhone */
         }
 
-        * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            -webkit-tap-highlight-color: transparent; /* Quita el recuadro gris al tocar */
+        }
         
         body {
-            background-color: var(--bg);
-            color: var(--text);
+            background-color: var(--bg-color);
+            color: var(--text-main);
             display: flex;
             justify-content: center;
-            align-items: center;
+            align-items: center; /* Centrado vertical */
             min-height: 100vh;
             padding: 20px;
+            /* Evita rebote en iOS */
+            overscroll-behavior-y: none;
         }
 
         .app-container {
-            background: var(--card);
+            background: var(--card-bg);
             width: 100%;
-            max-width: 500px;
-            border-radius: 24px;
-            padding: 30px;
-            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+            max-width: 420px; /* Ancho típico de iPhone Max */
+            border-radius: 32px; /* Más redondeado */
+            padding: 24px;
+            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.12); /* Sombra suave y difusa */
             text-align: center;
             position: relative;
             overflow: hidden;
             display: flex;
             flex-direction: column;
-            min-height: 550px;
+            height: 85vh; /* Ocupa casi toda la pantalla */
+            max-height: 800px;
         }
 
-        /* Pantallas */
-        .screen { display: none; flex: 1; flex-direction: column; justify-content: center; animation: fadeIn 0.4s ease; }
-        .screen.active { display: flex; }
+        /* --- PANTALLAS Y TRANSICIONES --- */
+        .screen {
+            display: none;
+            flex: 1;
+            flex-direction: column;
+            justify-content: center;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+        .screen.active {
+            display: flex;
+            opacity: 1;
+            animation: slideUp 0.4s cubic-bezier(0.2, 0.8, 0.2, 1);
+        }
 
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(20px); }
             to { opacity: 1; transform: translateY(0); }
         }
 
-        h1 { font-size: 1.8rem; margin-bottom: 10px; color: var(--primary); }
-        h2 { font-size: 1.3rem; margin-bottom: 20px; font-weight: 600; color: #374151; }
-        p { color: #6B7280; margin-bottom: 20px; line-height: 1.6; }
+        /* --- TIPOGRAFÍA --- */
+        h1 {
+            font-size: 28px;
+            font-weight: 700;
+            margin-bottom: 8px;
+            color: var(--text-main);
+            letter-spacing: -0.5px;
+        }
+        
+        h2 {
+            font-size: 20px;
+            font-weight: 600;
+            margin-bottom: 24px;
+            color: var(--text-main);
+            line-height: 1.4;
+        }
 
+        p {
+            color: var(--text-secondary);
+            margin-bottom: 24px;
+            font-size: 16px;
+            line-height: 1.5;
+        }
+
+        .brand-badge {
+            text-transform: uppercase;
+            font-size: 11px;
+            letter-spacing: 1px;
+            color: var(--brand-secondary);
+            font-weight: 700;
+            margin-bottom: 5px;
+            display: block;
+        }
+
+        /* --- BOTONES iOS --- */
         .btn {
-            background: var(--primary);
+            background: var(--brand-primary);
             color: white;
             border: none;
-            padding: 16px;
-            font-size: 1.1rem;
-            border-radius: 12px;
+            padding: 18px;
+            font-size: 17px;
+            border-radius: 16px; /* Botón pastilla */
             cursor: pointer;
             width: 100%;
             font-weight: 600;
-            margin-top: 10px;
-            transition: 0.2s;
+            margin-top: 12px;
+            transition: transform 0.1s;
+            box-shadow: 0 4px 12px rgba(0, 122, 255, 0.25);
         }
-        .btn:hover { background-color: #4338CA; }
-        .btn:disabled { background-color: #A0AEC0; cursor: not-allowed; }
+        .btn:active { transform: scale(0.96); opacity: 0.9; }
+        .btn:disabled { background-color: #E5E5EA; color: #8E8E93; box-shadow: none; }
+        
+        .btn-outline {
+            background: transparent;
+            color: var(--brand-primary);
+            box-shadow: none;
+            font-weight: 500;
+        }
 
+        /* --- INPUT --- */
         .input-name {
             width: 100%;
-            padding: 15px;
-            border: 2px solid #E5E7EB;
-            border-radius: 12px;
-            font-size: 1.1rem;
-            margin-bottom: 15px;
+            padding: 16px;
+            border: 2px solid transparent;
+            background: #F2F2F7;
+            border-radius: 16px;
+            font-size: 17px;
+            margin-bottom: 16px;
             text-align: center;
+            color: var(--text-main);
+            transition: 0.3s;
         }
-        .input-name:focus { border-color: var(--primary); outline: none; }
+        .input-name:focus {
+            background: #fff;
+            border-color: var(--brand-primary);
+            outline: none;
+            box-shadow: 0 0 0 4px rgba(0, 122, 255, 0.1);
+        }
 
-        /* Timer */
+        /* --- TIMER --- */
         .timer-container {
-            width: 100%; height: 6px; background: #E5E7EB;
-            position: absolute; top: 0; left: 0;
+            width: 100%;
+            height: 6px;
+            background: #F2F2F7;
+            position: absolute;
+            top: 0; left: 0;
         }
         .timer-bar {
-            height: 100%; background: var(--warning); width: 100%;
-            transition: width 1s linear;
+            height: 100%;
+            background: var(--brand-primary);
+            width: 100%;
+            transition: width 1s linear, background-color 0.3s;
         }
 
-        /* Quiz UI */
-        .header-info { display: flex; justify-content: space-between; margin: 15px 0; font-size: 0.9rem; color: #6B7280; }
-        .options-grid { display: flex; flex-direction: column; gap: 12px; margin-bottom: 20px; }
+        /* --- UI DE JUEGO --- */
+        .header-info {
+            display: flex;
+            justify-content: space-between;
+            margin: 20px 0;
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .options-grid {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-bottom: auto; /* Empuja el contenido hacia arriba */
+        }
+
         .option-btn {
-            background: white; border: 2px solid #E5E7EB; padding: 16px; border-radius: 12px;
-            text-align: left; font-size: 1rem; cursor: pointer; transition: 0.2s;
+            background: #F2F2F7; /* Gris claro por defecto */
+            border: none;
+            padding: 18px 20px;
+            border-radius: 14px;
+            text-align: left;
+            font-size: 16px;
+            color: var(--text-main);
+            cursor: pointer;
+            transition: 0.2s;
+            position: relative;
+            font-weight: 500;
         }
-        .option-btn:hover:not(:disabled) { border-color: var(--secondary); background: #EEF2FF; }
-        .option-btn.correct { background: var(--success); border-color: var(--success); color: white; }
-        .option-btn.wrong { background: var(--error); border-color: var(--error); color: white; }
+        
+        .option-btn:active { background: #E5E5EA; }
+        
+        /* Estados Correcto/Incorrecto */
+        .option-btn.correct { background: var(--success); color: white; box-shadow: 0 4px 10px rgba(52, 199, 89, 0.3); }
+        .option-btn.wrong { background: var(--error); color: white; opacity: 0.8; }
 
-        /* Tabla Ranking */
+        /* --- TABLA RANKING --- */
         .ranking-container {
-            max-height: 300px;
+            flex: 1;
             overflow-y: auto;
             margin-bottom: 20px;
-            border: 1px solid #E5E7EB;
-            border-radius: 12px;
+            background: #F9F9F9;
+            border-radius: 16px;
+            padding: 0 10px;
         }
-        .ranking-table { width: 100%; border-collapse: collapse; font-size: 0.9rem; }
-        .ranking-table th { background: #F3F4F6; padding: 10px; font-weight: 600; text-align: left; position: sticky; top: 0; }
-        .ranking-table td { padding: 10px; border-bottom: 1px solid #E5E7EB; text-align: left; }
-        .ranking-table tr:nth-child(1) td { color: #D97706; font-weight: bold; } /* Top 1 Gold */
+        .ranking-table { width: 100%; border-collapse: collapse; font-size: 15px; }
+        .ranking-table th { 
+            padding: 14px 10px; 
+            font-size: 12px; 
+            text-transform: uppercase; 
+            color: var(--text-secondary); 
+            text-align: left; 
+            position: sticky; top: 0; 
+            background: #F9F9F9;
+            border-bottom: 1px solid #E5E5EA;
+        }
+        .ranking-table td { 
+            padding: 14px 10px; 
+            border-bottom: 1px solid #E5E5EA; 
+            text-align: left; 
+        }
+        .ranking-table tr:last-child td { border-bottom: none; }
         
-        .loading { color: var(--primary); font-weight: bold; }
+        .score-circle {
+            width: 100px; height: 100px;
+            border-radius: 50%;
+            background: var(--brand-primary);
+            color: white;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 36px;
+            font-weight: 800;
+            margin: 0 auto 20px;
+            box-shadow: 0 10px 20px rgba(0, 122, 255, 0.3);
+        }
+
+        .loading-spinner {
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid var(--brand-primary);
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            animation: spin 1s linear infinite;
+            display: inline-block;
+        }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+
     </style>
 </head>
 <body>
@@ -126,67 +271,80 @@
         <div class="timer-container"><div id="timer-bar" class="timer-bar"></div></div>
 
         <div id="start-screen" class="screen active">
-            <h1>Desafío Docente</h1>
-            <p>Responde 10 preguntas y compite con otros colegas.<br>
-            <strong>+10 pts Correcta | +1 pto por segundo sobrante</strong></p>
-            <div style="font-size: 4rem; margin-bottom: 20px;">🏆</div>
-            <button class="btn" onclick="startQuiz()">Comenzar</button>
-            <button class="btn" onclick="showRankingOnly()" style="background:transparent; color: var(--primary); border: 2px solid var(--primary); margin-top:10px;">Ver Ranking Actual</button>
+            <span class="brand-badge">DOCENTES BROWN</span>
+            <h1>Desafío Pedagógico</h1>
+            <p>Demostrá cuánto sabés sobre el sistema educativo y posicionate en el ranking distrital.</p>
+            
+            <div style="font-size: 80px; margin: 20px 0; filter: drop-shadow(0 4px 6px rgba(0,0,0,0.1));">📚</div>
+            
+            <div style="margin-top: auto;">
+                <button class="btn" onclick="startQuiz()">Comenzar Desafío</button>
+                <button class="btn btn-outline" onclick="showRankingOnly()">Ver Ranking Actual</button>
+            </div>
         </div>
 
         <div id="quiz-screen" class="screen">
             <div class="header-info">
-                <span id="question-count">1/10</span>
-                <span id="timer-text">30s</span>
+                <span id="question-count">Pregunta 1</span>
+                <span id="timer-text" style="color: var(--brand-primary);">30s</span>
             </div>
+            
             <h2 id="question-text">...</h2>
-            <div class="options-grid" id="options-container"></div>
+            
+            <div class="options-grid" id="options-container">
+                </div>
         </div>
 
         <div id="save-screen" class="screen">
-            <h1>¡Juego Terminado!</h1>
-            <div style="font-size: 3rem; color: var(--primary); font-weight: 800;" id="final-score-display">0</div>
-            <p>Puntos Totales</p>
-            <input type="text" id="player-name" class="input-name" placeholder="Ingresa tu Nombre y Apellido" maxlength="25">
-            <button class="btn" id="btn-save" onclick="saveScore()">Guardar y Ver Ranking</button>
+            <span class="brand-badge">RESULTADOS</span>
+            <h1>¡Tiempo!</h1>
+            
+            <div class="score-circle" id="final-score-display">0</div>
+            <p>Puntos Totales Acumulados</p>
+            
+            <div style="margin-top: 20px; width: 100%;">
+                <input type="text" id="player-name" class="input-name" placeholder="Tu Nombre y Apellido" maxlength="25">
+                <button class="btn" id="btn-save" onclick="saveScore()">Guardar mi Puntaje</button>
+            </div>
         </div>
 
         <div id="ranking-screen" class="screen">
-            <h1>Tabla General</h1>
+            <h1 style="font-size: 22px;">Tabla de Posiciones</h1>
+            <p style="font-size: 14px; margin-bottom: 10px;">Top 10 Docentes del Distrito</p>
+            
             <div class="ranking-container">
                 <table class="ranking-table">
                     <thead>
                         <tr>
-                            <th>#</th>
+                            <th style="width: 40px;">#</th>
                             <th>Docente</th>
-                            <th>Pts</th>
+                            <th style="text-align: right;">Pts</th>
                         </tr>
                     </thead>
                     <tbody id="ranking-body">
-                        <tr><td colspan="3" class="loading">Cargando datos...</td></tr>
-                    </tbody>
+                        </tbody>
                 </table>
             </div>
-            <button class="btn" onclick="location.reload()">Jugar de Nuevo</button>
+            
+            <button class="btn btn-outline" onclick="location.reload()">Volver al Inicio</button>
         </div>
     </div>
 
     <script>
-        // --- 1. CONFIGURACIÓN ---
-        // Tu URL ya está configurada aquí:
+        // --- CONFIGURACIÓN ---
         const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbz8JdC0CNk7A2bWTtaEyZe2fajDN-CYxFJrkTLaXKu4H9TrJYhJHGh9S5vQsrmhwNWrBA/exec"; 
 
         const questions = [
-            { question: "¿Ley de Educación Nacional vigente?", answers: [ {t:"Ley 1420",c:false}, {t:"Ley 26.206",c:true}, {t:"Ley Federal",c:false}, {t:"Ley Financiamiento",c:false} ]},
-            { question: "¿Qué establece la Ley 26.150?", answers: [ {t:"Estatuto",c:false}, {t:"Jornada extendida",c:false}, {t:"ESI",c:true}, {t:"Voto joven",c:false} ]},
-            { question: "¿La secundaria es obligatoria?", answers: [ {t:"Sí, toda",c:true}, {t:"Solo ciclo básico",c:false}, {t:"No, optativa",c:false}, {t:"Según provincia",c:false} ]},
-            { question: "¿Organizador de vida institucional?", answers: [ {t:"Diseño Curricular",c:false}, {t:"PEI",c:true}, {t:"Cuaderno",c:false}, {t:"Censo",c:false} ]},
-            { question: "¿Garantes de la educación?", answers: [ {t:"Directivos",c:false}, {t:"Familias",c:false}, {t:"Estado y docentes",c:true}, {t:"Cooperadora",c:false} ]},
-            { question: "¿Qué es AIC?", answers: [ {t:"Asoc. Institutos",c:false}, {t:"Acuerdos Convivencia",c:true}, {t:"Área Integración",c:false}, {t:"Acuerdo Curricular",c:false} ]},
-            { question: "¿Paradigma de infancia actual?", answers: [ {t:"Irregular",c:false}, {t:"Tutela",c:false}, {t:"Riesgo",c:false}, {t:"Sujetos de derecho",c:true} ]},
-            { question: "¿Artículo Const. enseñar y aprender?", answers: [ {t:"Art 14",c:true}, {t:"Art 9",c:false}, {t:"Art 14 bis",c:false}, {t:"Art 22",c:false} ]},
-            { question: "¿Inclusión educativa implica?", answers: [ {t:"Aprender lo mismo",c:false}, {t:"Evaluar diferente",c:false}, {t:"Derribar barreras",c:true}, {t:"Escuelas especiales",c:false} ]},
-            { question: "¿Función evaluación formativa?", answers: [ {t:"Nota final",c:false}, {t:"Clasificar",c:false}, {t:"Retroalimentar",c:true}, {t:"Aprobar",c:false} ]}
+            { question: "¿Cuál es la Ley de Educación Nacional vigente en Argentina?", answers: [ {t:"Ley 1420",c:false}, {t:"Ley 26.206",c:true}, {t:"Ley 10.430",c:false}, {t:"Ley Financiamiento",c:false} ]},
+            { question: "¿Qué establece la Ley 26.150?", answers: [ {t:"Estatuto del Docente",c:false}, {t:"Jornada Extendida",c:false}, {t:"Educación Sexual Integral",c:true}, {t:"Voto Joven",c:false} ]},
+            { question: "¿La educación secundaria es obligatoria?", answers: [ {t:"Sí, en toda su extensión",c:true}, {t:"Solo el Ciclo Básico",c:false}, {t:"No, es optativa",c:false}, {t:"Según la jurisdicción",c:false} ]},
+            { question: "¿Qué documento organiza la vida institucional?", answers: [ {t:"Diseño Curricular",c:false}, {t:"Proyecto Educativo Institucional",c:true}, {t:"Libro de Firmas",c:false}, {t:"Registro de Asistencia",c:false} ]},
+            { question: "¿Quiénes son los garantes de la educación?", answers: [ {t:"Los directivos y los docentes",c:false}, {t:"Las familias y los docentes",c:false}, {t:"El Estado y los docentes",c:true}, {t:"La Cooperadora Escolar y los docentes",c:false} ]},
+            { question: "¿Qué significan las siglas AIC?", answers: [ {t:"Asociación de Institutos Complementarios",c:false}, {t:"Acuerdo Institucional de Convivencia",c:true}, {t:"Área de Integración Colegiada",c:false}, {t:"Acuerdo Curricular Institucional",c:false} ]},
+            { question: "¿Paradigma actual sobre infancia?", answers: [ {t:"Situación Irregular",c:false}, {t:"Objeto de Tutela",c:false}, {t:"Menores en Riesgo",c:false}, {t:"Sujetos de Derecho",c:true} ]},
+            { question: "¿Artículo Constitucional de enseñar y aprender?", answers: [ {t:"Artículo 14",c:true}, {t:"Artículo 9",c:false}, {t:"Artículo 14 bis",c:false}, {t:"Artículo 22",c:false} ]},
+            { question: "¿Qué implica la inclusión educativa?", answers: [ {t:"Homogeneizar contenidos",c:false}, {t:"Evaluar diferenciado",c:false}, {t:"Derribar barreras",c:true}, {t:"Educación Especial",c:false} ]},
+            { question: "¿Función de la evaluación formativa?", answers: [ {t:"Calificar al final",c:false}, {t:"Clasificar en el proceso",c:false}, {t:"Retroalimentar el proceso",c:true}, {t:"Acreditar saberes",c:false} ]}
         ];
 
         let currentQuestionIndex = 0;
@@ -194,9 +352,9 @@
         let correctAnswers = 0;
         let timeLeft = 30;
         let timerInterval;
-        let savedSeconds = 0; // Acumulador de tiempo sobrante
+        let savedSeconds = 0;
 
-        // Elementos DOM
+        // UI Refs
         const screens = document.querySelectorAll('.screen');
         const timerBar = document.getElementById('timer-bar');
         const optionsContainer = document.getElementById('options-container');
@@ -219,7 +377,7 @@
             resetState();
             const q = questions[currentQuestionIndex];
             document.getElementById('question-text').innerText = q.question;
-            document.getElementById('question-count').innerText = `${currentQuestionIndex + 1}/${questions.length}`;
+            document.getElementById('question-count').innerText = `Pregunta ${currentQuestionIndex + 1} de ${questions.length}`;
             
             q.answers.forEach(ans => {
                 const btn = document.createElement('button');
@@ -227,6 +385,8 @@
                 btn.classList.add('option-btn');
                 btn.dataset.correct = ans.c;
                 btn.onclick = selectAnswer;
+                // Soporte para touch start para que se sienta más rápido en iPhone
+                btn.addEventListener('touchstart', function(){}, {passive: true}); 
                 optionsContainer.appendChild(btn);
             });
             startTimer();
@@ -249,7 +409,18 @@
             const pct = (timeLeft / 30) * 100;
             timerBar.style.width = `${pct}%`;
             document.getElementById('timer-text').innerText = `${timeLeft}s`;
-            timerBar.style.background = pct < 30 ? "#EF4444" : "#F59E0B";
+            
+            // Colores semánticos iOS
+            if (pct < 30) {
+                timerBar.style.background = "var(--error)"; // Rojo
+                document.getElementById('timer-text').style.color = "var(--error)";
+            } else if (pct < 60) {
+                timerBar.style.background = "var(--accent)"; // Naranja
+                document.getElementById('timer-text').style.color = "var(--accent)";
+            } else {
+                timerBar.style.background = "var(--brand-primary)"; // Azul
+                document.getElementById('timer-text').style.color = "var(--brand-primary)";
+            }
         }
 
         function resetState() {
@@ -263,6 +434,9 @@
         }
 
         function selectAnswer(e) {
+            // Prevenir doble click
+            if(e.target.disabled) return;
+            
             clearInterval(timerInterval);
             const isCorrect = e.target.dataset.correct === "true";
             revealAnswer(isCorrect, e.target);
@@ -277,33 +451,56 @@
 
             if(isCorrect) {
                 correctAnswers++;
-                savedSeconds += timeLeft; // Acumulamos el tiempo que sobró
+                savedSeconds += timeLeft; 
                 score += (10 + timeLeft);
+            }
+
+            // Haptic Feedback simulado (vibración si el navegador lo permite)
+            if (navigator.vibrate) {
+                if(isCorrect) navigator.vibrate(50); // Vibración corta éxito
+                else navigator.vibrate([50, 50, 50]); // Vibración error
             }
 
             setTimeout(() => {
                 currentQuestionIndex++;
                 if(currentQuestionIndex < questions.length) loadQuestion();
                 else finishQuiz();
-            }, 1500);
+            }, 1200);
         }
 
         function finishQuiz() {
             showScreen('save-screen');
-            document.getElementById('final-score-display').innerText = score;
+            // Animación de conteo
+            let startScore = 0;
+            const scoreDisplay = document.getElementById('final-score-display');
+            const duration = 1000; 
+            const step = score > 0 ? Math.ceil(score / (duration / 20)) : 1;
+            
+            const timer = setInterval(() => {
+                startScore += step;
+                if (startScore >= score) {
+                    startScore = score;
+                    clearInterval(timer);
+                }
+                scoreDisplay.innerText = startScore;
+            }, 20);
         }
 
         // --- FUNCIONES GOOGLE SHEET ---
 
         function saveScore() {
             const name = document.getElementById('player-name').value.trim();
-            if(!name) { alert("Por favor ingresa un nombre"); return; }
+            if(!name) { 
+                alert("⚠️ Por favor ingresá tu nombre para guardar el puntaje."); 
+                document.getElementById('player-name').focus();
+                return; 
+            }
             
             const btnSave = document.getElementById('btn-save');
-            btnSave.innerText = "Guardando...";
+            const originalText = btnSave.innerText;
+            btnSave.innerHTML = '<span class="loading-spinner"></span> Guardando...';
             btnSave.disabled = true;
 
-            // Construir URL con parámetros
             const url = `${GOOGLE_SCRIPT_URL}?action=save&nombre=${encodeURIComponent(name)}&correctas=${correctAnswers}&tiempo=${savedSeconds}&puntaje=${score}`;
 
             fetch(url, { method: "POST" })
@@ -312,16 +509,16 @@
                 if(data.result === "success") {
                     loadRanking();
                 } else {
-                    alert("Error al guardar en la base de datos.");
+                    alert("Hubo un error al guardar.");
                     btnSave.disabled = false;
-                    btnSave.innerText = "Reintentar Guardado";
+                    btnSave.innerText = originalText;
                 }
             })
             .catch(error => {
                 console.error("Error:", error);
-                alert("Error de conexión al guardar.");
+                alert("Error de conexión.");
                 btnSave.disabled = false;
-                btnSave.innerText = "Reintentar Guardado";
+                btnSave.innerText = originalText;
             });
         }
 
@@ -332,7 +529,7 @@
         function loadRanking() {
             showScreen('ranking-screen');
             const tbody = document.getElementById('ranking-body');
-            tbody.innerHTML = '<tr><td colspan="3" class="loading">Cargando posiciones...</td></tr>';
+            tbody.innerHTML = '<tr><td colspan="3" style="text-align:center; padding: 20px;"><span class="loading-spinner"></span><br>Cargando posiciones...</td></tr>';
 
             const url = `${GOOGLE_SCRIPT_URL}?action=read`;
 
@@ -341,29 +538,30 @@
             .then(data => {
                 tbody.innerHTML = '';
                 if(!data || data.length === 0) {
-                    tbody.innerHTML = '<tr><td colspan="3">Aún no hay registros. ¡Sé el primero!</td></tr>';
+                    tbody.innerHTML = '<tr><td colspan="3" style="text-align:center;">¡Sé el primero en jugar!</td></tr>';
                     return;
                 }
                 
                 data.forEach((row, index) => {
                     const tr = document.createElement('tr');
-                    // Iconos para top 3
-                    let medal = "";
-                    if(index === 0) medal = "🥇 ";
-                    if(index === 1) medal = "🥈 ";
-                    if(index === 2) medal = "🥉 ";
+                    // Medallas
+                    let pos = index + 1;
+                    let badge = pos;
+                    
+                    if(pos === 1) badge = "🥇";
+                    if(pos === 2) badge = "🥈";
+                    if(pos === 3) badge = "🥉";
 
                     tr.innerHTML = `
-                        <td>${medal}${index + 1}</td>
-                        <td>${row.nombre}</td>
-                        <td style="font-weight:bold">${row.puntaje}</td>
+                        <td style="font-weight:600;">${badge}</td>
+                        <td style="font-weight:500;">${row.nombre}</td>
+                        <td style="text-align: right; font-weight:700; color: var(--brand-primary);">${row.puntaje}</td>
                     `;
                     tbody.appendChild(tr);
                 });
             })
             .catch(error => {
-                console.error(error);
-                tbody.innerHTML = '<tr><td colspan="3">Error al cargar ranking.</td></tr>';
+                tbody.innerHTML = '<tr><td colspan="3" style="text-align:center; color: var(--error);">Error al cargar ranking.</td></tr>';
             });
         }
     </script>
